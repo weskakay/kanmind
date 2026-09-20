@@ -52,7 +52,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
     def get_comments_count(self, task):
         """Return how many comments the task has."""
-        return 0
+        return len(task.comments.all())
 
     def validate(self, attrs):
         """Assignee and reviewer have to be members of the board."""

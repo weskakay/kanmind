@@ -38,7 +38,10 @@ class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Read, update or delete a single board."""
 
     queryset = Board.objects.prefetch_related(
-        'members', 'tasks__assignee', 'tasks__reviewer',
+        'members',
+        'tasks__assignee',
+        'tasks__reviewer',
+        'tasks__comments',
     )
     http_method_names = ['get', 'patch', 'delete', 'head', 'options']
 

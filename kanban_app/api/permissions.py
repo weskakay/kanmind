@@ -42,3 +42,11 @@ class IsTaskCreatorOrBoardOwner(BasePermission):
         if not board.members.filter(pk=request.user.pk).exists():
             return False
         return obj.created_by_id == request.user.id
+
+
+class IsCommentAuthor(BasePermission):
+    """Allows only the author to remove their own comment."""
+
+    def has_object_permission(self, request, view, obj):
+        """Check authorship."""
+        return obj.author_id == request.user.id

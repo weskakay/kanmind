@@ -46,7 +46,7 @@ class AssignedTaskListView(generics.ListAPIView):
         return Task.objects.filter(
             assignee=self.request.user,
             board__members=self.request.user,
-        )
+        ).select_related('assignee', 'reviewer').prefetch_related('comments')
 
 
 class ReviewingTaskListView(generics.ListAPIView):
@@ -60,4 +60,4 @@ class ReviewingTaskListView(generics.ListAPIView):
         return Task.objects.filter(
             reviewer=self.request.user,
             board__members=self.request.user,
-        )
+        ).select_related('assignee', 'reviewer').prefetch_related('comments')
