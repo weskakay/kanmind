@@ -1,5 +1,5 @@
 [run]
-source = auth_app, core
+source = auth_app, kanban_app, core
 omit =
     */migrations/*
     core/asgi.py
