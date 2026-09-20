@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.exceptions import PermissionDenied
 
 from auth_app.api.serializers import UserSerializer
 from auth_app.models import User
@@ -44,12 +43,6 @@ class TaskSerializer(serializers.ModelSerializer):
             'comments_count',
         ]
 
-    def check_access(self, board):
-        """Refuse boards the requesting user is not a member of."""
-        user = self.context['request'].user
-        if not board.members.filter(pk=user.pk).exists():
-            raise PermissionDenied('You are not a member of this board.')
-
     def get_comments_count(self, task):
         """Return how many comments the task has."""
         return len(task.comments.all())
@@ -57,7 +50,6 @@ class TaskSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         """Assignee and reviewer have to be members of the board."""
         board = attrs.get('board') or getattr(self.instance, 'board', None)
-        self.check_access(board)
         for field in ['assignee', 'reviewer']:
             user = attrs.get(field)
             if user and not board.members.filter(pk=user.pk).exists():

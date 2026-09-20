@@ -46,6 +46,7 @@ class CommentListCreateView(TaskCommentAccessMixin,
 class CommentDetailView(TaskCommentAccessMixin, generics.DestroyAPIView):
     """Deletes a single comment."""
 
+    serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, IsCommentAuthor]
 
     def get_queryset(self):

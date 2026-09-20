@@ -12,11 +12,7 @@ class CommentTestCase(APITestCase):
     """A task on a shared board with one existing comment."""
 
     def setUp(self):
-        self.owner = User.objects.create_user('a@example.com', 'Ann', PASSWORD)
-        self.member = User.objects.create_user(
-            'b@example.com', 'Ben', PASSWORD,
-        )
-        self.other = User.objects.create_user('c@example.com', 'Cem', PASSWORD)
+        self.create_users()
         self.board = Board.objects.create(title='Sprint', owner=self.owner)
         self.board.members.set([self.owner, self.member])
         self.task = Task.objects.create(
@@ -26,6 +22,14 @@ class CommentTestCase(APITestCase):
             task=self.task, author=self.member, content='First note',
         )
         self.list_url = reverse('comment-list', args=[self.task.id])
+
+    def create_users(self):
+        """Create an owner, a member and an outsider."""
+        self.owner = User.objects.create_user('a@example.com', 'Ann', PASSWORD)
+        self.member = User.objects.create_user(
+            'b@example.com', 'Ben', PASSWORD,
+        )
+        self.other = User.objects.create_user('c@example.com', 'Cem', PASSWORD)
 
 
 class CommentListTests(CommentTestCase):

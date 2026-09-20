@@ -1,4 +1,6 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 
 from kanban_app.api.permissions import (
@@ -7,7 +9,7 @@ from kanban_app.api.permissions import (
 from kanban_app.api.task_serializers import (
     TaskSerializer, TaskUpdateSerializer,
 )
-from kanban_app.models import Task
+from kanban_app.models import Board, Task
 
 
 class TaskCreateView(generics.CreateAPIView):
@@ -16,9 +18,26 @@ class TaskCreateView(generics.CreateAPIView):
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
 
+    def initial(self, request, *args, **kwargs):
+        """Resolve the board and its access before the body is read."""
+        super().initial(request, *args, **kwargs)
+        self.board = self.get_board()
+
+    def get_board(self):
+        """Return the board from the body, members and owner only."""
+        board_id = str(self.request.data.get('board', ''))
+        if not board_id.isdigit():
+            raise ValidationError({'board': 'A board id is required.'})
+        board = get_object_or_404(Board, pk=int(board_id))
+        if board.owner_id == self.request.user.id:
+            return board
+        if not board.members.filter(pk=self.request.user.pk).exists():
+            raise PermissionDenied('You are not a member of this board.')
+        return board
+
     def perform_create(self, serializer):
         """Store the logged in user as the creator."""
-        serializer.save(created_by=self.request.user)
+        serializer.save(created_by=self.request.user, board=self.board)
 
 
 class TaskDetailView(generics.UpdateAPIView, generics.DestroyAPIView):

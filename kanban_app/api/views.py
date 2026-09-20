@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db.models import Q
-from rest_framework import generics, status
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -65,18 +65,23 @@ class EmailCheckView(APIView):
 
     def get(self, request):
         """Return the user behind the given email address."""
+        email = self.read_email(request)
+        if email is None:
+            return self.error('A valid email address is required.', 400)
+        user = User.objects.filter(email=email).first()
+        if user is None:
+            return self.error('No user with this email address.', 404)
+        return Response(UserSerializer(user).data)
+
+    def error(self, detail, code):
+        """Answer with a short message and the given status code."""
+        return Response({'detail': detail}, status=code)
+
+    def read_email(self, request):
+        """Return the queried address, or None if it is not an email."""
         email = request.query_params.get('email', '').strip().lower()
         try:
             validate_email(email)
         except ValidationError:
-            return Response(
-                {'detail': 'A valid email address is required.'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        user = User.objects.filter(email=email).first()
-        if user is None:
-            return Response(
-                {'detail': 'No user with this email address.'},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        return Response(UserSerializer(user).data)
+            return None
+        return email

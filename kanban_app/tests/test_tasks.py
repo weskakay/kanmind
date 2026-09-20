@@ -74,9 +74,15 @@ class TaskCreateTests(TaskTestCase):
         response = self.client.post(self.url, self.payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_unknown_board_returns_400(self):
+    def test_unknown_board_returns_404(self):
         self.client.force_authenticate(self.owner)
         self.payload['board'] = 9999
+        response = self.client.post(self.url, self.payload)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_missing_board_returns_400(self):
+        self.client.force_authenticate(self.owner)
+        del self.payload['board']
         response = self.client.post(self.url, self.payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -207,6 +213,35 @@ class RemovedMemberTests(TaskTestCase):
             'assignee_id': self.other.id,
         })
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_outsider_with_a_broken_body_still_gets_403(self):
+        self.client.force_authenticate(self.other)
+        response = self.client.post(reverse('task-create'), {
+            'board': self.board.id,
+        })
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class BoardOwnerOutsideMembersTests(TaskTestCase):
+    """The owner keeps access even when not listed as a member."""
+
+    def setUp(self):
+        super().setUp()
+        self.board.members.set([self.member])
+
+    def test_owner_can_create_a_task(self):
+        self.client.force_authenticate(self.owner)
+        response = self.client.post(reverse('task-create'), {
+            'board': self.board.id,
+            'title': 'Owner task',
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_owner_can_patch_a_task(self):
+        self.client.force_authenticate(self.owner)
+        url = reverse('task-detail', args=[self.task.id])
+        response = self.client.patch(url, {'status': 'done'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class DeletedUserTests(TaskTestCase):

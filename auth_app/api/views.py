@@ -44,14 +44,18 @@ class LoginView(APIView):
         """Log an existing user in."""
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = authenticate(
-            request,
-            username=serializer.validated_data['email'],
-            password=serializer.validated_data['password'],
-        )
+        user = self.find_user(request, serializer.validated_data)
         if user is None:
             return Response(
                 {'detail': 'Invalid email or password.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         return Response(build_auth_response(user))
+
+    def find_user(self, request, credentials):
+        """Return the user behind the credentials, or None."""
+        return authenticate(
+            request,
+            username=credentials['email'],
+            password=credentials['password'],
+        )
