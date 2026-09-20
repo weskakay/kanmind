@@ -262,6 +262,33 @@ class DeletedUserTests(TaskTestCase):
         self.assertEqual(Task.objects.count(), 0)
 
 
+class TaskDetailMethodTests(TaskTestCase):
+    """The task detail route only answers PATCH and DELETE."""
+
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('task-detail', args=[self.task.id])
+        self.client.force_authenticate(self.owner)
+
+    def test_get_is_not_allowed(self):
+        response = self.client.get(self.url)
+        self.assertEqual(
+            response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+
+    def test_put_is_not_allowed(self):
+        response = self.client.put(self.url, {'title': 'Nope'})
+        self.assertEqual(
+            response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+
+    def test_head_is_not_allowed(self):
+        response = self.client.head(self.url)
+        self.assertEqual(
+            response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+
+
 class TaskListTests(TaskTestCase):
     """Covers the assigned-to-me and reviewing lists."""
 

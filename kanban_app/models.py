@@ -20,6 +20,8 @@ class Board(models.Model):
 
     class Meta:
         ordering = ['id']
+        verbose_name = 'board'
+        verbose_name_plural = 'boards'
 
     def __str__(self):
         return self.title
@@ -83,6 +85,8 @@ class Task(models.Model):
 
     class Meta:
         ordering = ['id']
+        verbose_name = 'task'
+        verbose_name_plural = 'tasks'
 
     def __str__(self):
         return self.title
@@ -106,6 +110,8 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['created_at']
+        verbose_name = 'comment'
+        verbose_name_plural = 'comments'
 
     def __str__(self):
         return f'{self.author} on {self.task}'
