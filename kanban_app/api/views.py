@@ -27,7 +27,7 @@ class BoardListCreateView(generics.ListCreateAPIView):
         own = Board.objects.filter(Q(owner=user) | Q(members=user))
         return Board.objects.filter(
             pk__in=own.values('pk')
-        ).prefetch_related('members')
+        ).prefetch_related('members', 'tasks')
 
     def perform_create(self, serializer):
         """Store the logged in user as the owner."""
@@ -37,7 +37,9 @@ class BoardListCreateView(generics.ListCreateAPIView):
 class BoardDetailView(generics.RetrieveUpdateDestroyAPIView):
     """Read, update or delete a single board."""
 
-    queryset = Board.objects.all()
+    queryset = Board.objects.prefetch_related(
+        'members', 'tasks__assignee', 'tasks__reviewer',
+    )
     http_method_names = ['get', 'patch', 'delete', 'head', 'options']
 
     def get_permissions(self):

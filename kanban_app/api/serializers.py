@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from auth_app.api.serializers import UserSerializer
 from auth_app.models import User
+from kanban_app.api.task_serializers import BoardTaskSerializer
 from kanban_app.models import Board
 
 
@@ -35,19 +36,19 @@ class BoardSummarySerializer(serializers.ModelSerializer):
 
     def get_member_count(self, board):
         """Return how many users share this board."""
-        return board.members.count()
+        return len(board.members.all())
 
     def get_ticket_count(self, board):
         """Return how many tasks the board holds."""
-        return 0
+        return len(board.tasks.all())
 
     def get_tasks_to_do_count(self, board):
         """Return how many tasks are still open."""
-        return 0
+        return len([t for t in board.tasks.all() if t.status == 'to-do'])
 
     def get_tasks_high_prio_count(self, board):
         """Return how many tasks have a high priority."""
-        return 0
+        return len([t for t in board.tasks.all() if t.priority == 'high'])
 
     def create(self, validated_data):
         """Save the board and make sure the owner is a member."""
@@ -63,15 +64,11 @@ class BoardDetailSerializer(serializers.ModelSerializer):
 
     owner_id = serializers.IntegerField(read_only=True)
     members = UserSerializer(many=True, read_only=True)
-    tasks = serializers.SerializerMethodField()
+    tasks = BoardTaskSerializer(many=True, read_only=True)
 
     class Meta:
         model = Board
         fields = ['id', 'title', 'owner_id', 'members', 'tasks']
-
-    def get_tasks(self, board):
-        """Return the tasks of this board."""
-        return []
 
 
 class BoardUpdateSerializer(serializers.ModelSerializer):

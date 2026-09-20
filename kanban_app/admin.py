@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from kanban_app.models import Board
+from kanban_app.models import Board, Task
 
 
 @admin.register(Board)
@@ -10,3 +10,12 @@ class BoardAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'owner']
     search_fields = ['title']
     filter_horizontal = ['members']
+
+
+@admin.register(Task)
+class TaskAdmin(admin.ModelAdmin):
+    """Read and edit tasks in the Django admin."""
+
+    list_display = ['id', 'title', 'board', 'status', 'priority']
+    list_filter = ['status', 'priority']
+    search_fields = ['title']
