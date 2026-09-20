@@ -1,0 +1,7 @@
+[run]
+source = auth_app, core
+omit =
+    */migrations/*
+    core/asgi.py
+    core/wsgi.py
+    manage.py
