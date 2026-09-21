@@ -2,9 +2,14 @@
 __pycache__/
 *.py[cod]
 
-# Virtual env
+# Virtual env, all the usual folder names
 .venv/
 venv/
+env/
+ENV/
+.env/
+env.bak/
+venv.bak/
 
 # Django
 db.sqlite3
@@ -14,6 +19,7 @@ staticfiles/
 
 # Env
 .env
+*.log
 
 # Coverage
 .coverage

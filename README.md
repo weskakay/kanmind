@@ -15,14 +15,57 @@ The frontend is not part of this repository.
 
 ## Setup
 
+**1. Clone the repository**
+
 ```bash
 git clone https://github.com/weskakay/kanmind.git
+```
+
+**2. Enter the project folder**
+
+```bash
 cd kanmind
+```
+
+**3. Create a virtual environment**
+
+```bash
 python3 -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+```
+
+**4. Activate it** — macOS and Linux:
+
+```bash
+source .venv/bin/activate
+```
+
+Windows:
+
+```bash
+.venv\Scripts\activate
+```
+
+**5. Install the dependencies**
+
+```bash
 pip install -r requirements.txt
+```
+
+**6. Create the database**
+
+```bash
 python manage.py migrate
+```
+
+**7. Create the guest account the frontend uses**
+
+```bash
 python manage.py create_guest_user
+```
+
+**8. Start the server**
+
+```bash
 python manage.py runserver
 ```
 
@@ -125,10 +168,28 @@ Users, boards, tasks and comments are editable at
 ## Configuration
 
 `SECRET_KEY` and `DEBUG` are read from the environment and fall back to
-development defaults:
+development defaults, so the setup above works without any configuration.
+
+`.env.example` lists the variables. Copy it and fill in your own values:
+
+```bash
+cp .env.example .env
+```
+
+The project does not load that file on its own. Export the values before
+starting the server:
+
+```bash
+set -a; source .env; set +a
+```
+
+A single variable works the same way:
 
 ```bash
 export DJANGO_SECRET_KEY="your-secret"
+```
+
+```bash
 export DJANGO_DEBUG=False
 ```
 
@@ -137,10 +198,27 @@ Cross origin requests are allowed from `127.0.0.1` and `localhost` on ports
 
 ## Development
 
+Install the development dependencies:
+
 ```bash
 pip install -r requirements-dev.txt
+```
+
+Run the tests:
+
+```bash
 coverage run manage.py test
+```
+
+Show the coverage report:
+
+```bash
 coverage report
+```
+
+Check the code style:
+
+```bash
 flake8
 ```
 
